@@ -1,5 +1,6 @@
 import requests
 import json
+import sys
 from datetime import datetime
 import schedule
 import time
@@ -10,14 +11,16 @@ from telethon.tl.types import InputPeerUser, InputPeerChannel
 from telethon import TelegramClient, sync, events
 
 
-telegram_token='<telegram bot token>'
+#TODO: add readme on how to get api_id and api_hash
 api_id='<telegram_app>'
 api_hash='<telegram_app_hash>'
 phone='<your phone number for verification>'
 
+#TODO: add readme on how to get chat_id/channel name
 chat_id = "-1001448255643"
 channel_name = 'test12xdsv'  #to which you want to send the message
 already_notified={}
+send_telegram_notification = False
 
 def sendNotification(tele_notifications):
   client = TelegramClient('session', api_id, api_hash)
@@ -37,10 +40,11 @@ def sendNotification(tele_notifications):
       for name,value in tele_notifications.items():
         center=value[0]
         message = message + "Avalaiblity at : "+name+", pin code: "+str(center["pincode"])+", Slots: "+str(value[1])+", Address: " + center["address"]+"\n"
-      print("sending message:",message,str(datetime.now()))
-      client.send_message(entity=entity, message=message)
+      print("sending message:",message,str(datetime.now()),send_telegram_notification)
+      if send_telegram_notification :
+        client.send_message(entity=entity, message=message)
+        pass
   except Exception as e:
-
       # there may be many error coming in while like peer
       # error, wwrong access_hash, flood_error, etc
       print("error",e)
@@ -118,11 +122,22 @@ headers ={
 }
 
 
-#schedlung the job
-schedule_check_appointments()
-while True:
-   schedule.run_pending()
-   time.sleep(1)
+if __name__ == "__main__":
+  args = sys.argv
+  if len(args) == 4:
+    api_id = args[1]
+    api_hash = args[2]
+    send_telegram_notification = eval(args[3])
+
+    schedule_check_appointments()
+    while True:
+      schedule.run_pending()
+      time.sleep(1)
+  else:
+    print("run with python appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>")
+  #schedlung the job
+
+pass
 
 
 
