@@ -55,9 +55,6 @@ def schedule_check_appointments():
   schedule.clear()
   print(f'Scheduled in {time_span} seconds',str(datetime.now()))
   schedule.every(time_span+0.2).seconds.do(check_appointments)
-  while True:
-    schedule.run_pending()
-    time.sleep(1)
   pass
 
 def check_appointments():
@@ -69,6 +66,7 @@ def check_appointments():
   else:
     contents = json.loads(response.content)
     centers=contents["centers"]
+    print("total centers are:",str(len(centers)))
     notifications={}
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available. TODO: to send different notification message for each date.
@@ -82,11 +80,11 @@ def check_appointments():
             notifications[center_name]=(c,session["available_capacity"])
             already_notified[center_name]=True
           break
-      if len(notifications)>0:
-        break
+      pass
+    pass
 
-    #if len(notifications)>0:
-      #sendNotification(notifications)
+    if len(notifications)>0:
+      sendNotification(notifications)
 
   print("done")
   schedule_check_appointments()
@@ -95,7 +93,7 @@ def check_appointments():
 
 # district_id 118 is for gurgaon
 # change the date to today's date
-params= {"district_id":188,"date":"08-05-2021"}
+params= {"district_id":188,"date":"09-05-2021"}
 
 print("checking for appointment")
 
@@ -122,6 +120,9 @@ headers ={
 
 #schedlung the job
 schedule_check_appointments()
+while True:
+   schedule.run_pending()
+   time.sleep(1)
 
 
 
