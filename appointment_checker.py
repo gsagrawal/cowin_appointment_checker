@@ -32,7 +32,6 @@ def sendNotification(tele_notifications):
       # signing in the client
       client.sign_in(phone, input('Enter the code: '))
 
-
   try:
       # sending message using telegram client
       entity=client.get_entity(channel_name)
@@ -54,10 +53,10 @@ def sendNotification(tele_notifications):
 
 
 def schedule_check_appointments():
-  #scheduling at random frequency.
+  #scheduling at random frequency between 1 to 5 seconds.
   time_span = random.randint(1, 5)
   schedule.clear()
-  print(f'Scheduled in {time_span} seconds',str(datetime.now()))
+  #print(f'Scheduled in {time_span} seconds',str(datetime.now()))
   schedule.every(time_span+0.2).seconds.do(check_appointments)
   pass
 
@@ -70,12 +69,12 @@ def check_appointments():
   else:
     contents = json.loads(response.content)
     centers=contents["centers"]
-    print("total centers are:",str(len(centers)))
+    #print("total centers are:",str(len(centers)))
     notifications={}
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available. TODO: to send different notification message for each date.
       for session in c["sessions"]:
-        if (session["min_age_limit"] >= 18 and session["available_capacity"] >1 ):  # no point of sending notification with 1 slot as it will get filled
+        if (session["min_age_limit"] == 18 and session["available_capacity"] >1 ):  # no point of sending notification with 1 slot as it will get filled
           center_name=c["name"]
           try:
             #ignore already notified centers to avoid flood of notifications
@@ -91,19 +90,21 @@ def check_appointments():
       sendNotification(notifications)
 
   print("done")
+  #print(".",end =" ",flush=True)
   schedule_check_appointments()
   return schedule.CancelJob
 
 
 # district_id 118 is for gurgaon
 # change the date to today's date
-params= {"district_id":188,"date":"09-05-2021"}
+today_date = datetime.today().strftime("%d-%m-%Y")
+params= {"district_id":188,"date":datetime.today().strftime(today_date)}
 
 print("checking for appointment")
 
 url="https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
 
-print(url)
+print(url,params)
 
 headers ={
   'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -134,7 +135,7 @@ if __name__ == "__main__":
       schedule.run_pending()
       time.sleep(1)
   else:
-    print("run with python appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>")
+    print("run with python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>")
   #schedlung the job
 
 pass
