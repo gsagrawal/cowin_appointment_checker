@@ -2,5 +2,26 @@
 To get real time notification notified whenever there is a 18+ vaccination slots open 
 
 
+
+Setup 
+
+1. Install python dependencies
+ 
+ _pip3 install requests schedule_
+ 
+ For telegram setup install following dependencies 
+ 
+_pip3 install telebot telethon_
+ 
+2. Setup telegram bot and api 
+
 #TODO: add steps to generate telegram api/hash/auth_token/channel_id
+
+#refer to https://www.geeksforgeeks.org/send-message-to-telegram-user-using-python/ for now 
+
+3. Run the app using  _python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>"_
+
+
+
+
 
