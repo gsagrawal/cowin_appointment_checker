@@ -22,7 +22,8 @@ _pip3 install telebot telethon_
 
 #refer to https://www.geeksforgeeks.org/send-message-to-telegram-user-using-python/ for now 
 
-3. Run the app using  _python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>"_
+3. Create one public channel in telegram, use the public share link name (and update it in the code) (except t.me, only the name)
+4. Run the app using  _python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>"_
 
 
 
