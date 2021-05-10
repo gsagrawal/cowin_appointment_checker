@@ -14,10 +14,10 @@ from telethon import TelegramClient, sync, events
 #TODO: add readme on how to get api_id and api_hash
 api_id='<telegram_app>'
 api_hash='<telegram_app_hash>'
-phone='<your phone number for verification>'
+phone='<add your phone number>' #this is needed when connection with bot is not authenticated
+bot_token='<bot-toekn>'
 #TODO: add readme on how to get chat_id/channel name
-channel_name = '<channel_name>'  #to which channel you want to send the message (this is my channel)
-
+channel_id = '<channel_id>'  #to which channel you want to send the message (this is my channel)
 
 
 already_notified={}
@@ -26,11 +26,11 @@ send_telegram_notification = False
 def sendNotification(message):
 
   if not send_telegram_notification :
-    print ("message to send :",message,str(datetime.now()),send_telegram_notification)
+    print ("sending message to console :",message,str(datetime.now()),send_telegram_notification)
     return
     pass
 
-  client = TelegramClient('session', api_id, api_hash)
+  client = TelegramClient('bot-session', api_id, api_hash).start(bot_token=bot_token)
   client.connect()
   if not client.is_user_authorized():
       client.send_code_request(phone)
@@ -38,9 +38,9 @@ def sendNotification(message):
       client.sign_in(phone, input('Enter the code: '))
 
   try:
-      # sending message using telegram client
-      entity=client.get_entity(channel_name)
-      print ("sending message :",message,str(datetime.now()),send_telegram_notification)
+      # sending message to a channel using telegram client.
+      print ("sending message to telegram :",message,str(datetime.now()),send_telegram_notification)
+      entity=client.get_entity(channel_id)
       client.send_message(entity=entity, message=message)
       pass
   except Exception as e:
@@ -54,7 +54,7 @@ def sendNotification(message):
 
 def schedule_check_appointments():
   #scheduling at random frequency between 1 to 5 seconds.
-  time_span = random.randint(1, 5)
+  time_span = random.randint(1, 2)
   schedule.clear()
   #print(f'Scheduled in {time_span} seconds',str(datetime.now()))
   schedule.every(time_span+0.2).seconds.do(check_appointments)
@@ -131,21 +131,33 @@ headers ={
   'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
 }
 
+def run():
+    schedule_check_appointments()
+    #sendNotification("test message. Please ignore")
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+    pass
+pass
+
 
 if __name__ == "__main__":
   args = sys.argv
-  if len(args) == 4:
-    api_id = args[1]
-    api_hash = args[2]
-    send_telegram_notification = eval(args[3])
-
-    schedule_check_appointments()
-    while True:
-      schedule.run_pending()
-      time.sleep(1)
-  else:
-    print("run with python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>")
-  #schedlung the job
+  if len(args) > 1 :
+      send_telegram_notification = eval(args[1])
+      if send_telegram_notification and len(args) == 6 :
+          api_id = args[2]
+          api_hash = args[3]
+          bot_token = args[4]
+          channel_id = args[5]
+          print("api id: {}, api_hash: {}, bot_token:{}, channel_id: {} ".format(api_id,api_hash,bot_token,channel_id))
+          run()
+      elif not send_telegram_notification:
+          run()
+      pass
+  pass
+  print("run with python3 appointment_checker.py True '<api_id>' '<api_hash>' <bot_token> <channel_id>")
+  print("or python3 appointment_checker.py False ")
 
 pass
 
