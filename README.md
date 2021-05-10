@@ -16,14 +16,17 @@ Setup
  
 _pip3 install telebot telethon_
  
-2. Setup telegram bot and api 
+2. If you dont need notifications then run the code using 'python3 appointment_checker.py False'
+
+3. Setup telegram bot and api 
 
 #TODO: add steps to generate telegram api/hash/auth_token/channel_name (or receiver id for telegram) 
 
 #refer to https://www.geeksforgeeks.org/send-message-to-telegram-user-using-python/ for now 
 
-3. Create one public channel in telegram, use the public share link name (and update it in the code) (except t.me, only the name)
-4. Run the app using  _python3 appointment_checker.py '<api_id>' '<api_hash>' <send_telgram_notification>"_
+4. Create one public channel in telegram, use the public share link name  (except t.me, only the name)
+
+5. Run the app using  _python3 appointment_checker.py True '<api_id>' '<api_hash>' '<bot_token>' '<channel_id>' "_
 
 
 
