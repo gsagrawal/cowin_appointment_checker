@@ -15,34 +15,34 @@ from telethon import TelegramClient, sync, events
 api_id='<telegram_app>'
 api_hash='<telegram_app_hash>'
 phone='<your phone number for verification>'
-
 #TODO: add readme on how to get chat_id/channel name
-chat_id = "-1001448255643"
-channel_name = 'test12xdsv'  #to which you want to send the message
+channel_name = '<channel_name>'  #to which channel you want to send the message (this is my channel)
+
+
+
 already_notified={}
 send_telegram_notification = False
 
-def sendNotification(tele_notifications):
+def sendNotification(message):
+
+  if not send_telegram_notification :
+    print ("message to send :",message,str(datetime.now()),send_telegram_notification)
+    return
+    pass
+
   client = TelegramClient('session', api_id, api_hash)
   client.connect()
   if not client.is_user_authorized():
-
       client.send_code_request(phone)
-
       # signing in the client
       client.sign_in(phone, input('Enter the code: '))
 
   try:
       # sending message using telegram client
       entity=client.get_entity(channel_name)
-      message=""
-      for name,value in tele_notifications.items():
-        center=value[0]
-        message = message + "Avalaiblity at : "+name+", pin code: "+str(center["pincode"])+", Slots: "+str(value[1])+", Address: " + center["address"]+"\n"
-      print("sending message:",message,str(datetime.now()),send_telegram_notification)
-      if send_telegram_notification :
-        client.send_message(entity=entity, message=message)
-        pass
+      print ("sending message :",message,str(datetime.now()),send_telegram_notification)
+      client.send_message(entity=entity, message=message)
+      pass
   except Exception as e:
       # there may be many error coming in while like peer
       # error, wwrong access_hash, flood_error, etc
@@ -74,7 +74,7 @@ def check_appointments():
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available. TODO: to send different notification message for each date.
       for session in c["sessions"]:
-        if (session["min_age_limit"] == 18 and session["available_capacity"] >1 ):  # no point of sending notification with 1 slot as it will get filled
+        if (session["min_age_limit"] == 18 and session["available_capacity"] > 1 ):  # no point of sending notification with 1 slot as it will get filled
           center_name=c["name"]
           try:
             #ignore already notified centers to avoid flood of notifications
@@ -87,13 +87,22 @@ def check_appointments():
     pass
 
     if len(notifications)>0:
-      sendNotification(notifications)
+      #print("Available schedules :",notifications)
+      mesasge =  build_notification(notifications)
+      sendNotification(mesasge)
+      pass
 
-  print("done")
-  #print(".",end =" ",flush=True)
+  #print("done")
+  print(".",end =" ",flush=True)
   schedule_check_appointments()
   return schedule.CancelJob
 
+def build_notification(tele_notifications):
+  message=""
+  for name,value in tele_notifications.items():
+    center=value[0]
+    message = message + "Avalaiblity at : "+name+", pin code: "+str(center["pincode"])+", Slots: "+str(value[1])+", Address: " + center["address"]+"\n"
+  return message
 
 # district_id 118 is for gurgaon
 # change the date to today's date
