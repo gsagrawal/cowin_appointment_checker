@@ -18,7 +18,7 @@ _pip3 install telebot telethon_
  
 2. Setup telegram bot and api 
 
-#TODO: add steps to generate telegram api/hash/auth_token/channel_id
+#TODO: add steps to generate telegram api/hash/auth_token/channel_name (or receiver id for telegram) 
 
 #refer to https://www.geeksforgeeks.org/send-message-to-telegram-user-using-python/ for now 
 
