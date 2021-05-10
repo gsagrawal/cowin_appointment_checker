@@ -1,5 +1,7 @@
 # cowin_appointment_checker
-To get real time notification notified whenever there is a 18+ vaccination slots open 
+To get real time notification notified whenever there is a 18+ vaccination slots open in gurgaon 
+
+# to change the location : change the district code from param (get the district code by checking network calls on cowin app) 
 
 
 
@@ -23,5 +25,5 @@ _pip3 install telebot telethon_
 
 
 
-
+Drop me a mail at gsagrawal@gmail.com for any questions/concerns 
 
