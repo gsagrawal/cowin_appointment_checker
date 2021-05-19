@@ -54,7 +54,7 @@ def sendNotification(message):
 
 def schedule_check_appointments():
   #scheduling at random frequency between 1 to 5 seconds.
-  time_span = random.randint(1, 2)
+  time_span = random.randint(1, 5)
   schedule.clear()
   #print(f'Scheduled in {time_span} seconds',str(datetime.now()))
   schedule.every(time_span+0.2).seconds.do(check_appointments)
@@ -74,13 +74,13 @@ def check_appointments():
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available. TODO: to send different notification message for each date.
       for session in c["sessions"]:
-        if (session["min_age_limit"] == 18 and session["available_capacity"] > 1 ):  # no point of sending notification with 1 slot as it will get filled
+        if (session["min_age_limit"] == 18 and session["available_capacity_dose1"] > 1 ):  # no point of sending notification with 1 slot as it will get filled
           center_name=c["name"]
           try:
             #ignore already notified centers to avoid flood of notifications
             data=already_notified[center_name]
           except KeyError:
-            notifications[center_name]=(c,session["available_capacity"])
+            notifications[center_name]=(c,session["available_capacity_dose1"],session["vaccine"])
             already_notified[center_name]=True
           break
       pass
@@ -101,13 +101,13 @@ def build_notification(tele_notifications):
   message=""
   for name,value in tele_notifications.items():
     center=value[0]
-    message = message + "Avalaiblity at : "+name+", pin code: "+str(center["pincode"])+", Slots: "+str(value[1])+", Address: " + center["address"]+"\n"
+    message = message + "Avalaiblity for dose 1 at : "+name+", vaccine: "+str(value[2])+",pin code: "+str(center["pincode"])+", Slots: "+str(value[1])+",center_id:"+str(center["center_id"])+", Address: " + center["address"]+"\n"
   return message
 
 # district_id 118 is for gurgaon
 # change the date to today's date
 today_date = datetime.today().strftime("%d-%m-%Y")
-params= {"district_id":188,"date":datetime.today().strftime(today_date)}
+params= {"district_id":188,"date":datetime.today().strftime(today_date),"t":str(datetime.now())}
 
 print("checking for appointment")
 
