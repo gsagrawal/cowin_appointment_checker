@@ -54,10 +54,10 @@ def sendNotification(message):
 
 def schedule_check_appointments():
   #scheduling at random frequency between 1 to 5 seconds.
-  time_span = random.randint(1, 5)
+  time_span = random.randint(5, 10)
   schedule.clear()
   #print(f'Scheduled in {time_span} seconds',str(datetime.now()))
-  schedule.every(time_span+0.2).seconds.do(check_appointments)
+  schedule.every(time_span+0.3).seconds.do(check_appointments)
   pass
 
 def check_appointments():
@@ -69,7 +69,7 @@ def check_appointments():
   else:
     contents = json.loads(response.content)
     centers=contents["centers"]
-    #print("total centers are:",str(len(centers)))
+    #print("total centers are:",centers)
     notifications={}
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available. TODO: to send different notification message for each date.
@@ -107,13 +107,14 @@ def build_notification(tele_notifications):
 # district_id 118 is for gurgaon
 # change the date to today's date
 today_date = datetime.today().strftime("%d-%m-%Y")
-params= {"district_id":188,"date":datetime.today().strftime(today_date),"t":str(datetime.now())}
+district_id = 188
+params= {"district_id":district_id,"date":datetime.today().strftime(today_date),"t":str(datetime.now())}
 
-print("checking for appointment")
+print("checking for appointment",params)
 
 url="https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
 
-print(url,params)
+
 
 headers ={
   'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -145,11 +146,15 @@ if __name__ == "__main__":
   args = sys.argv
   if len(args) > 1 :
       send_telegram_notification = eval(args[1])
-      if send_telegram_notification and len(args) == 6 :
+      if send_telegram_notification and len(args) >=6 :
           api_id = args[2]
           api_hash = args[3]
           bot_token = args[4]
           channel_id = args[5]
+          if len(args) == 7:
+            district_id = int(args[6])
+            params["district_id"] = district_id
+            print(url,params)
           print("api id: {}, api_hash: {}, bot_token:{}, channel_id: {} ".format(api_id,api_hash,bot_token,channel_id))
           run()
       elif not send_telegram_notification:
