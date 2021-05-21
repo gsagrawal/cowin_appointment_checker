@@ -7,7 +7,7 @@ There are two scripts
 2: slot_booking_bot.py : This check and book the appointment. It needed input like phone number/ otp and captcha which are valid for 15 mintues i.e you have to run it again after each 15 minutes
 
 
-Readme for appointment_checker.py 
+**Readme for appointment_checker.py **
 
 
  To get real time notification notified whenever there is a 18+ vaccination slots open in gurgaon 
@@ -40,7 +40,7 @@ Readme for appointment_checker.py
  5. Run the app using  _python3 appointment_checker.py True '<api_id>' '<api_hash>' '<bot_token>' '<channel_id>' "_
 
 
-Readme for slot_booking_bot.py  : 
+**Readme for slot_booking_bot.py  : **
 
 Why this script : Right now due to heavy load by simple notification you cant book the appointment
 
