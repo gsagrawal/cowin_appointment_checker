@@ -8,6 +8,7 @@ from cairosvg import svg2png
 import time
 import random
 import schedule
+#pip3 install pyjwt
 import jwt
 
 
