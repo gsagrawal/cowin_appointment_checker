@@ -65,7 +65,8 @@ def get_beneficiaries(authenticatedHeadr):
       response =  json.loads(res.text)
       beneficiaries = response["beneficiaries"]
       if len(beneficiaries) == 1 :
-        return beneficiaries,True
+        beneficiariy_ids= [b["beneficiary_reference_id"] for b in beneficiaries]
+        return beneficiariy_ids,True
       else :
         print("check the beneficiaries result and provide one beneficiary_reference_id")
         return [],False
@@ -210,8 +211,8 @@ authenticatedHeadr = {
   'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
 }
 
-def run(district_id_str,preferred_center,preferred_vaccine):
-    txnId,status = generateOtp("9717167192")
+def run(user_phone_number,beneficiaries,district_id_str,preferred_center,preferred_vaccine):
+    txnId,status = generateOtp(user_phone_number)
     #txnId,status = "<existing transaction id>",True
     if not status:
       return
@@ -220,7 +221,7 @@ def run(district_id_str,preferred_center,preferred_vaccine):
     if not status :
       return
     authenticatedHeadr["authorization"] = "Bearer "+ token
-    beneficiaries ,status = get_beneficiaries(authenticatedHeadr)
+    #beneficiaries ,status = get_beneficiaries(authenticatedHeadr)
     #beneficiaries,status =["<your beneficiary id >"],True
 
     if not status :
@@ -254,8 +255,10 @@ if __name__ == "__main__":
       preferred_vaccine = "COVAXIN"
       pass
     user_phone_number = input("registered phone number :")
+    beneficiaries_id = input("Please provide your beneficiry id. This is the REF ID on your cowin dashboard page. :")
+    beneficiaries = [beneficiaries_id]
     #user_phone_number = "<your hadcoded phone number>"
-    run(district_id_str,preferred_center,preferred_vaccine)
+    run(user_phone_number,beneficiaries,district_id_str,preferred_center,preferred_vaccine)
 
 pass
 
