@@ -8,6 +8,7 @@ from cairosvg import svg2png
 import time
 import random
 import schedule
+import jwt
 
 
 
@@ -95,15 +96,22 @@ def convert_svg_to_png(svg_string):
 pass
 
 
-def schedule_check_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha):
+def schedule_check_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha,decoded_token):
   #scheduling at random frequency between 1 to 5 seconds.
   time_span = random.randint(1, 5)
   schedule.clear()
   #print(f'Scheduled in {time_span} seconds',str(datetime.now()))
-  schedule.every(time_span+0.2).seconds.do(check_and_book_appointments,district_id_str, authenticatedHeadr,beneficiaries,captcha)
+  schedule.every(time_span+0.2).seconds.do(check_and_book_appointments,district_id_str, authenticatedHeadr,beneficiaries,captcha,decoded_token)
 pass
 
-def check_and_book_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha):
+def check_and_book_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha,decoded_token):
+
+  print("checking for appoitnment.","token will expire at :",str(datetime.fromtimestamp(decoded_token["exp"])))
+
+  if  datetime.timestamp(datetime.now()) > decoded_token["exp"]:
+      print("token as expired. Please re-run the script.")
+      return False
+
   today_date = datetime.today().strftime("%d-%m-%Y")
   params= {"district_id":int(district_id_str),"date":datetime.today().strftime(today_date),"t":str(datetime.now())}
   response = requests.get(url=availabilityCheckUrl,params=params,headers=headers)
@@ -119,7 +127,7 @@ def check_and_book_appointments(district_id_str, authenticatedHeadr,beneficiarie
     for c in centers:
       #there are multiple sessions i.e days for which appoints could be available.
       for session in c["sessions"]:
-        if (session["min_age_limit"] == 45 and session["available_capacity_dose1"] > 0):
+        if (session["min_age_limit"] == 18 and session["available_capacity_dose1"] > 0):
           center_name=c["name"]
           avaialble_centers.append((c,session))
       pass
@@ -131,9 +139,9 @@ def check_and_book_appointments(district_id_str, authenticatedHeadr,beneficiarie
     pass
 
   #print("done")
-  print(".",end =" ",flush=True)
+  #print(".",end =" ",flush=True)
   if not slot_booked:
-     schedule_check_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha)
+     schedule_check_appointments(district_id_str, authenticatedHeadr,beneficiaries,captcha,decoded_token)
   return schedule.CancelJob
 pass
 
@@ -211,12 +219,22 @@ authenticatedHeadr = {
   'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
 }
 
+def ask_for_otp():
+  otp = ""
+  while True:
+    otp=input('Enter the OTP: ')
+    if otp != "":
+      return otp
+  pass
+
+
 def run(user_phone_number,beneficiaries,district_id_str,preferred_center,preferred_vaccine):
     txnId,status = generateOtp(user_phone_number)
     #txnId,status = "<existing transaction id>",True
     if not status:
       return
-    token,status =  confirmOtp(txnId,input('Enter the OTP: '))
+
+    token,status =  confirmOtp(txnId,ask_for_otp())
     #token,status="<add your bearer token here>",True
     if not status :
       return
@@ -227,12 +245,15 @@ def run(user_phone_number,beneficiaries,district_id_str,preferred_center,preferr
     if not status :
       return
 
+    decoded_token = jwt.decode(token,algorithms="HS256",options={"verify_signature": False})
+    print("token will expire at : ",str(datetime.fromtimestamp(decoded_token["exp"])))
+
     captcha,status = get_captcha(authenticatedHeadr)
     #captcha,status = "<existing captcha>",True
     if not status :
       return
 
-    check_and_book_appointments(district_id_str,authenticatedHeadr,beneficiaries,captcha)
+    check_and_book_appointments(district_id_str,authenticatedHeadr,beneficiaries,captcha,decoded_token)
     while True:
       schedule.run_pending()
       time.sleep(1)
