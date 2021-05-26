@@ -35,7 +35,7 @@ randomToken ="U2FsdGVkX1+TPSV7/E3PENx8ObiaQ9mIov/NO0Ry1mt5O8Awl1Ix+kX68wcBDbBTOD
 def generateOtp(phone_number):
     body = {"mobile":str(phone_number),"secret":randomToken}
     txnId=""
-    res = requests.post(url=basePrivateUrl+generateOtpPrivateUrl,json=body,headers=headers)
+    res = requests.post(url=basePrivateUrl+generateOtpPrivateUrl,json=body,headers=authenticatedHeadr)
     print(res.status_code, res.text)
     if res.status_code == 200:
       response =  json.loads(res.text)
@@ -48,7 +48,7 @@ def confirmOtp(txnID,otp):
     hashed_otp = hashlib.sha256(otp.encode())
     body = {"txnId": txnID, "otp":hashed_otp.hexdigest()}
     print("otp is:",hashed_otp.hexdigest())
-    res = requests.post(url=basePrivateUrl+confirmOtpPriavateUrl,json=body,headers=headers)
+    res = requests.post(url=basePrivateUrl+confirmOtpPriavateUrl,json=body,headers=authenticatedHeadr)
     print(res.status_code, res.text)
     if res.status_code == 200:
       response =  json.loads(res.text)
@@ -115,7 +115,7 @@ def check_and_book_appointments(district_id_str, authenticatedHeadr,beneficiarie
 
   today_date = datetime.today().strftime("%d-%m-%Y")
   params= {"district_id":int(district_id_str),"date":datetime.today().strftime(today_date),"t":str(datetime.now())}
-  response = requests.get(url=availabilityCheckUrl,params=params,headers=headers)
+  response = requests.get(url=availabilityCheckUrl,params=params,headers=authenticatedHeadr)
   slot_booked = False
   if response.status_code != 200:
     print("error in fetching data.",response.status_code, response.content)
